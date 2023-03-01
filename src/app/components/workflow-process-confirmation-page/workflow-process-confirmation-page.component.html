@@ -1,0 +1,6 @@
+<div *ngIf="processForm">
+  <select [formControl]="processForm.controls.page">
+    <option [value]="null" default>Select Confirmation Page</option>
+    <option *ngFor="let option of options" [value]="option">{{option}}</option>
+  </select>
+</div>

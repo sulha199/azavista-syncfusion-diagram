@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "yarn"
+    "packageManager": "yarn",
+    "analytics": "d6cb1371-f4ef-4215-8cba-b2cda0a88d26"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -19,6 +20,7 @@
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
+          "lazy-options": [],
           "options": {
             "outputPath": "dist/azavista-syncfusion-diagram",
             "index": "src/index.html",
@@ -32,6 +34,11 @@
               "src/favicon.ico",
               "src/assets"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules/@syncfusion"
+              ]
+            },
             "styles": [
               "src/styles.scss"
             ],
@@ -43,7 +50,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumError": "1.5mb"
                 },
                 {
                   "type": "anyComponentStyle",

@@ -5,6 +5,9 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:stats": "ng build  --configuration=production --named-chunks=true --source-map=true --stats-json",
+    "analyze": "webpack-bundle-analyzer dist/*/stats.json",
+    "analyze:map": "source-map-explorer dist/*/main.*.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -34,6 +37,9 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
-    "typescript": "~4.8.2"
+    "ng-packagr": "^15.0.0",
+    "source-map-explorer": "^2.5.3",
+    "typescript": "~4.8.2",
+    "webpack-bundle-analyzer": "^4.7.0"
   }
 }

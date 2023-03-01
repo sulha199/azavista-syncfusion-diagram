@@ -1,0 +1,34 @@
+<ng-container *ngIf="node && node.addInfo">
+  <div class="workflow-stage">
+    <div class="workflow-stage__header"  *ngIf="stageForm.value.type && stageMap[stageForm.value.type] as stageProp">
+      <div class="workflow-stage__title">{{ stageProp.label }}</div>
+      <div class="workflow-stage__description">{{ stageProp.description }}</div>
+    </div>
+    <input type="text" [formControl]="stageForm.controls.title" placeholder="Type stage name">
+    <div class="workflow-stage__process__list" *ngFor="let processForm of stageForm.controls.processes.controls">
+      <app-workflow-process-form *ngIf="processForm.value.type === 'form'" [processForm]="$any(processForm)"/>
+      <app-workflow-process-confirmation-email *ngIf="processForm.value.type === 'confirmationEmail'" [processForm]="$any(processForm)"/>
+      <app-workflow-process-confirmation-page *ngIf="processForm.value.type === 'confirmationPage'" [processForm]="$any(processForm)"/>
+    </div>
+    <div class="workflow-stage__process__form"  *ngIf="stageForm.controls.processes.controls.length > 0">
+      <button *ngIf="!isCreatingSequence" (click)="toggleCreateSequence($event)" class="button button__outline">Create Custom Process</button>
+      <div class="workflow-stage__process__options" *ngIf="isCreatingSequence" >
+        <button (click)="addProcess('confirmationPage')" class="button">Confirmation Page</button>
+        <button (click)="addProcess('confirmationEmail')" class="button">Confirmation Email</button>
+        <button (click)="addProcess('form')" class="button">Form</button>
+        <button (click)="toggleCreateSequence($event)" class="button button__outline button__cancel">Cancel</button>
+      </div>
+    </div>
+    <div class="workflow-stage__actions">
+      <ng-container *ngIf="stageForm.controls.processes.controls.length === 0">
+        <button class="button button__outline" (click)="setup(stageForm)">Set Up</button>
+      </ng-container>
+      <ng-container *ngIf="stageForm.controls.processes.controls.length > 0">
+        <button class="button" (click)="save()">Save</button>
+        <button class="button button__flat" (click)="clear(stageForm)">Clear</button>
+      </ng-container>
+    </div>
+    <a class="add add__right" (click)="addNode.emit({position: 'right', node: node})">+</a>
+    <a class="add add__below" (click)="addNode.emit({position: 'bottom', node: node})">+</a>
+  </div>
+</ng-container>

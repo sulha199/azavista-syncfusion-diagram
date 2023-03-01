@@ -1,0 +1,10 @@
+ejs-diagram {
+  background-color: var(--bg-color-grey);
+  ::ng-deep {
+    #diagram_diagramLayer_div {
+      // z-index: 1;
+      pointer-events: none;
+    }
+  }
+}
+
