@@ -9,7 +9,8 @@
     "analyze": "webpack-bundle-analyzer dist/*/stats.json",
     "analyze:map": "source-map-explorer dist/*/main.*.js",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "lint": "ng lint workflow-component && ng lint azavista-syncfusion-diagram"
   },
   "private": true,
   "dependencies": {
