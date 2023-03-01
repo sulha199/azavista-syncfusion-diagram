@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core'
+import { ControlType } from 'projects/workflow-component/src/lib/helpers'
 import { debounceTime } from 'rxjs'
-import { ControlType } from 'src/app/helpers'
-import { WorkflowProcessForm, workflowProcessFormOptions } from 'src/app/models'
+import { WorkflowProcessForm, workflowProcessFormOptions } from '../../models'
 
 @Component({
-  selector: 'app-workflow-process-form',
+  selector: 'azavista-workflow-process-form',
   templateUrl: './workflow-process-form.component.html',
   styleUrls: ['./workflow-process-form.component.scss']
 })

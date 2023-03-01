@@ -1,4 +1,4 @@
-import { WorkflowProcessType, WorkflowStageType } from './models'
+import { WorkflowProcessType, WorkflowStageType } from 'projects/workflow-component/src/lib/models'
 
 /* margin in px */
 export const WORKFLOW_DIAGRAM_NODE_MARGIN = 50;

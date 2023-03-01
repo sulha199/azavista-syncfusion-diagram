@@ -2,22 +2,16 @@ import { ChangeDetectorRef, Component, ViewChild } from '@angular/core'
 import { FormGroup } from '@angular/forms'
 import {
   ConnectorModel,
-  DiagramTools, NodeModel, PageSettingsModel, SnapConstraints, SnapSettingsModel
+  DiagramTools, PageSettingsModel, SnapConstraints, SnapSettingsModel
 } from '@syncfusion/ej2-angular-diagrams'
-import { WORKFLOW_DIAGRAM_NODE_MARGIN } from 'src/app/consts'
-import { GroupType } from 'src/app/helpers'
-import { nodesConnectorDummy, nodesDummy } from 'src/app/mocks'
-import {
-  CustomDiagramComponent,
-  CustomHistory,
-  CustomHistoryEntry,
-  WorkflowDiagramAddNodeOptions,
-  WorkflowDiagramNode,
-  WorkflowStage
-} from 'src/app/models'
+import { WORKFLOW_DIAGRAM_NODE_MARGIN } from 'projects/workflow-component/src/lib/consts'
+import { GroupType } from 'projects/workflow-component/src/lib/helpers'
+import { nodesConnectorDummy, nodesDummy } from '../../mocks'
+import { CustomDiagramComponent, CustomHistory, CustomHistoryEntry, WorkflowDiagramAddNodeOptions, WorkflowDiagramNode, WorkflowStage } from '../../models'
+
 
 @Component({
-  selector: 'app-workflow-diagram',
+  selector: 'azavista-workflow-diagram',
   templateUrl: './workflow-diagram.component.html',
   styleUrls: ['./workflow-diagram.component.scss'],
 })
@@ -87,7 +81,6 @@ export class WorkflowDiagramComponent {
       prevState: currentNode.addInfo
     })
     currentNode.addInfo = {...currentNode.addInfo, ...stageValue as any, version: `${(new Date).getTime()}`}
-    currentNode.addInfo = currentNode.addInfo
     this.diagram?.dataBind()
     this.diagram?.refresh()
   }
@@ -113,9 +106,9 @@ export class WorkflowDiagramComponent {
     } as CustomHistory<WorkflowDiagramNode>
   }
 
-  customUndoRedo = <T extends NodeModel>(args: CustomHistoryEntry<WorkflowDiagramNode>) => {
+  customUndoRedo = (args: CustomHistoryEntry<WorkflowDiagramNode>) => {
     const node = args.object;
-    var currentState = node.addInfo;
+    const currentState = node.addInfo;
 
     //Resets the state
     node.addInfo = args.prevState;

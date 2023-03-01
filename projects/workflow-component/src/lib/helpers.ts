@@ -9,7 +9,8 @@ export type GroupType<Model extends {[key: string]: any}> = {
 
 export type ControlType<Model, NullableModel = Model | null> = Model extends any[] ?
   ArrayControlType<Model[number]> :
-  Model extends {[key: string]: any} ?
+  Model extends {[key: string]: unknown} ?
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
     FormGroup<GroupType<Model>> :
     FormControl<NullableModel>

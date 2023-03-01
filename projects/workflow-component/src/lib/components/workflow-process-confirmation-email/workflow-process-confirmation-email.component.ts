@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core'
-import { ControlType } from 'src/app/helpers'
-import { WorkflowProcessConfirmationEmail, workflowProcessConfirmationEmailOptions } from 'src/app/models'
+import { ControlType } from 'projects/workflow-component/src/lib/helpers'
+import { WorkflowProcessConfirmationEmail, workflowProcessConfirmationEmailOptions } from '../../models'
+
 
 @Component({
-  selector: 'app-workflow-process-confirmation-email',
+  selector: 'azavista-workflow-process-confirmation-email',
   templateUrl: './workflow-process-confirmation-email.component.html',
   styleUrls: ['./workflow-process-confirmation-email.component.scss']
 })

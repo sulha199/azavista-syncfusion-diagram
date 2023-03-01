@@ -1,12 +1,10 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core'
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { FormGroup } from '@angular/forms'
+import { WORKFLOW_STAGE_PROCESSES_MAP, WORKFLOW_STAGE_PROPS_MAP } from 'projects/workflow-component/src/lib/consts'
+import { formWorkflowProcess, formWorkflowStage, GroupType } from 'projects/workflow-component/src/lib/helpers'
 import { debounceTime } from 'rxjs'
-import { WORKFLOW_STAGE_PROCESSES_MAP, WORKFLOW_STAGE_PROPS_MAP } from 'src/app/consts'
-import { formWorkflowProcess, formWorkflowStage, GroupType } from 'src/app/helpers'
-import {
-  WorkflowDiagramAddNodeOptions,
-  WorkflowDiagramNode, WorkflowProcessType, WorkflowStage
-} from 'src/app/models'
+import { WorkflowDiagramAddNodeOptions, WorkflowDiagramNode, WorkflowProcessType, WorkflowStage } from '../../models'
+
 
 const workflowProcessTypeOptions: WorkflowProcessType[] = ['confirmationEmail', 'confirmationPage', 'form']
 
@@ -28,11 +26,11 @@ const setupStageForm = (form: FormGroup<GroupType<WorkflowStage>>) => {
 }
 
 @Component({
-  selector: 'app-workflow-stage-form',
+  selector: 'azavista-workflow-stage-form',
   templateUrl: './workflow-stage-form.component.html',
   styleUrls: ['./workflow-stage-form.component.scss'],
 })
-export class WorkflowStageFormComponent implements OnInit, OnChanges {
+export class WorkflowStageFormComponent implements OnInit {
   stageForm = formWorkflowStage()
   sequenceTypes = workflowProcessTypeOptions
   isCreatingSequence = false
@@ -57,12 +55,6 @@ export class WorkflowStageFormComponent implements OnInit, OnChanges {
     this.stageForm.valueChanges.pipe(
       debounceTime(500)
     ).subscribe(value => this.updateStage.emit(value))
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    // if (changes['node'] && this.node) {
-    //   this.stageForm.patchValue(omit(this.node?.data, ['sequences']), { emitEvent: false })
-    // }
   }
 
   addProcess(type: WorkflowProcessType) {

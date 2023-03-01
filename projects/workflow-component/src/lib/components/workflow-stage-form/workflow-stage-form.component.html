@@ -6,9 +6,9 @@
     </div>
     <input type="text" [formControl]="stageForm.controls.title" placeholder="Type stage name">
     <div class="workflow-stage__process__list" *ngFor="let processForm of stageForm.controls.processes.controls">
-      <app-workflow-process-form *ngIf="processForm.value.type === 'form'" [processForm]="$any(processForm)"/>
-      <app-workflow-process-confirmation-email *ngIf="processForm.value.type === 'confirmationEmail'" [processForm]="$any(processForm)"/>
-      <app-workflow-process-confirmation-page *ngIf="processForm.value.type === 'confirmationPage'" [processForm]="$any(processForm)"/>
+      <azavista-workflow-process-form *ngIf="processForm.value.type === 'form'" [processForm]="$any(processForm)"/>
+      <azavista-workflow-process-confirmation-email *ngIf="processForm.value.type === 'confirmationEmail'" [processForm]="$any(processForm)"/>
+      <azavista-workflow-process-confirmation-page *ngIf="processForm.value.type === 'confirmationPage'" [processForm]="$any(processForm)"/>
     </div>
     <div class="workflow-stage__process__form"  *ngIf="stageForm.controls.processes.controls.length > 0">
       <button *ngIf="!isCreatingSequence" (click)="toggleCreateSequence($event)" class="button button__outline">Create Custom Process</button>

@@ -1,10 +1,10 @@
 <ejs-diagram #diagram id="diagram" width="100%" height="580px" [tool]="tool" (created)="created()"
 [historyManager]="historyManager" [snapSettings]="snapSettings" [pageSettings]="pageSettings">
   <ng-template #nodeTemplate let-data>
-    <app-workflow-stage-form
+    <azavista-workflow-stage-form
       [node]="data"
       (addNode)="onAdd($event)"
-      (updateStage)="updateStage($event, data)"></app-workflow-stage-form>
+      (updateStage)="updateStage($event, data)"></azavista-workflow-stage-form>
   </ng-template>
 </ejs-diagram>
 <div>
