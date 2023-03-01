@@ -20,7 +20,6 @@
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
-          "lazy-options": [],
           "options": {
             "outputPath": "dist/azavista-syncfusion-diagram",
             "index": "src/index.html",
