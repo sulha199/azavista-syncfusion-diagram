@@ -1,14 +1,13 @@
 import { ConnectorModel } from '@syncfusion/ej2-angular-diagrams'
+import { WORKFLOW_DIAGRAM_NODE_DEFAULT } from './consts'
 import { WorkflowDiagramNode } from './models'
 
 export const nodesDummy: WorkflowDiagramNode[] = [
   {
+    ...WORKFLOW_DIAGRAM_NODE_DEFAULT,
     id: 'node1_templatex',
     offsetX: 160,
     offsetY: 250,
-    width: 230,
-    minHeight: 300,
-    shape: { type: 'HTML' },
     addInfo: {
       type: 'invitation',
       title: 'Invitation',
@@ -16,12 +15,10 @@ export const nodesDummy: WorkflowDiagramNode[] = [
     },
   },
   {
+    ...WORKFLOW_DIAGRAM_NODE_DEFAULT,
     id: 'node1_template2',
     offsetX: 480,
     offsetY: 170,
-    width: 230,
-    minHeight: 300,
-    shape: { type: 'HTML' },
     addInfo: {
       type: 'registration',
       title: 'Registration',
@@ -29,12 +26,10 @@ export const nodesDummy: WorkflowDiagramNode[] = [
     },
   },
   {
+    ...WORKFLOW_DIAGRAM_NODE_DEFAULT,
     id: 'node1_template3',
     offsetX: 790,
     offsetY: 180,
-    width: 230,
-    minHeight: 300,
-    shape: { type: 'HTML' },
     addInfo: {
       type: 'post-registration',
       title: 'Registered Participants',
@@ -42,12 +37,10 @@ export const nodesDummy: WorkflowDiagramNode[] = [
     },
   },
   {
+    ...WORKFLOW_DIAGRAM_NODE_DEFAULT,
     id: 'node1_template4',
     offsetX: 1090,
     offsetY: 280,
-    width: 230,
-    minHeight: 300,
-    shape: { type: 'HTML' },
     addInfo: {
       type: 'arrival',
       title: 'arrival',

@@ -4,11 +4,19 @@ import {
   ConnectorModel,
   DiagramTools, PageSettingsModel, SnapConstraints, SnapSettingsModel
 } from '@syncfusion/ej2-angular-diagrams'
-import { WORKFLOW_DIAGRAM_NODE_MARGIN } from 'projects/workflow-component/src/lib/consts'
+import { WORKFLOW_DIAGRAM_NODE_DEFAULT, WORKFLOW_DIAGRAM_NODE_MARGIN, WORKFLOW_HISTORY_MANAGER } from 'projects/workflow-component/src/lib/consts'
 import { GroupType } from 'projects/workflow-component/src/lib/helpers'
 import { nodesConnectorDummy, nodesDummy } from '../../mocks'
-import { CustomDiagramComponent, CustomHistory, CustomHistoryEntry, WorkflowDiagramAddNodeOptions, WorkflowDiagramNode, WorkflowStage } from '../../models'
+import { CustomDiagramComponent, WorkflowDiagramAddNodeOptions, WorkflowDiagramNode, WorkflowStage } from '../../models'
 
+const snapSettings: SnapSettingsModel = {
+  constraints: SnapConstraints.None
+}
+const pageSettings: PageSettingsModel = {
+  background: {
+    color: 'var(--bg-color-grey)',
+  }
+}
 
 @Component({
   selector: 'azavista-workflow-diagram',
@@ -19,15 +27,9 @@ export class WorkflowDiagramComponent {
   tool: DiagramTools =  DiagramTools.ContinuousDraw
   nodes = nodesDummy
   connectors = nodesConnectorDummy
-  historyManager = this.createHistorymanager()
-  snapSettings: SnapSettingsModel  = {
-    constraints: SnapConstraints.None
-  }
-  pageSettings: PageSettingsModel = {
-    background: {
-      color: 'var(--bg-color-grey)',
-    }
-  }
+  historyManager = WORKFLOW_HISTORY_MANAGER
+  snapSettings = snapSettings
+  pageSettings = pageSettings
 
   @ViewChild('diagram')
   public diagram?: CustomDiagramComponent<WorkflowDiagramNode>;
@@ -39,6 +41,7 @@ export class WorkflowDiagramComponent {
     if (currentNode == null) { return }
     const newId = `node_${new Date().getTime()}`;
     const newNode: WorkflowDiagramNode = {
+      ...WORKFLOW_DIAGRAM_NODE_DEFAULT,
       id: newId,
       offsetX:
         (currentNode.offsetX ?? 0) +
@@ -50,9 +53,6 @@ export class WorkflowDiagramComponent {
         (position === 'bottom'
           ? (currentNode.height ?? currentNode.minHeight ?? 100) + WORKFLOW_DIAGRAM_NODE_MARGIN
           : 0),
-      width: 230,
-      minHeight: 300,
-      shape: { type: 'HTML' },
       addInfo: {
         title: newId,
         processes: [],
@@ -82,7 +82,16 @@ export class WorkflowDiagramComponent {
     })
     currentNode.addInfo = {...currentNode.addInfo, ...stageValue as any, version: `${(new Date).getTime()}`}
     this.diagram?.dataBind()
-    this.diagram?.refresh()
+  }
+
+  updateHeight(prevNode: WorkflowDiagramNode, height: number) {
+    const currentNode = this.diagram?.nodes.find(({id}) => id === prevNode.id)
+    if (currentNode?.addInfo?.processes == undefined) { return }
+    if (currentNode.height === height) { return }
+    currentNode.height = height;
+    // eslint-disable-next-line no-self-assign
+    currentNode.offsetY = currentNode.offsetY;
+    this.diagram?.dataBind()
   }
 
   created = () => {
@@ -97,23 +106,5 @@ export class WorkflowDiagramComponent {
   redo() {
     this.diagram?.redo()
     this.diagram?.refresh()
-  }
-
-  createHistorymanager() {
-    return {
-      undo: this.customUndoRedo,
-      redo: this.customUndoRedo
-    } as CustomHistory<WorkflowDiagramNode>
-  }
-
-  customUndoRedo = (args: CustomHistoryEntry<WorkflowDiagramNode>) => {
-    const node = args.object;
-    const currentState = node.addInfo;
-
-    //Resets the state
-    node.addInfo = args.prevState;
-
-    //Saves the previous state
-    args.prevState = currentState;
   }
 }

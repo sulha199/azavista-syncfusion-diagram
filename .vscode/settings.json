@@ -13,7 +13,7 @@
   "editor.tabSize": 2,
   "editor.useTabStops": false,
   "editor.trimAutoWhitespace": true,
-  "editor.formatOnSave": false,
+  "editor.formatOnSave": true,
   "editor.bracketPairColorization.enabled": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {

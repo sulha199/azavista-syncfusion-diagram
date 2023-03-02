@@ -51,6 +51,8 @@ export class CustomDiagramComponent<T extends NodeModel> extends DiagramComponen
 
   override nodes: T[]= [];
 
+  override nodeDefaults!: Partial<T>;
+
   override add(obj: T | ConnectorModel, group?: boolean) {
     return super.add(obj, group)
   }

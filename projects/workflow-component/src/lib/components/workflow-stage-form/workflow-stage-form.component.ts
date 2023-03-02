@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { FormGroup } from '@angular/forms'
 import { WORKFLOW_STAGE_PROCESSES_MAP, WORKFLOW_STAGE_PROPS_MAP } from 'projects/workflow-component/src/lib/consts'
 import { formWorkflowProcess, formWorkflowStage, GroupType } from 'projects/workflow-component/src/lib/helpers'
@@ -30,7 +30,7 @@ const setupStageForm = (form: FormGroup<GroupType<WorkflowStage>>) => {
   templateUrl: './workflow-stage-form.component.html',
   styleUrls: ['./workflow-stage-form.component.scss'],
 })
-export class WorkflowStageFormComponent implements OnInit {
+export class WorkflowStageFormComponent implements OnInit, AfterViewInit {
   stageForm = formWorkflowStage()
   sequenceTypes = workflowProcessTypeOptions
   isCreatingSequence = false
@@ -40,8 +40,9 @@ export class WorkflowStageFormComponent implements OnInit {
 
   @Output() addNode = new EventEmitter<WorkflowDiagramAddNodeOptions>()
   @Output() updateStage = new EventEmitter<(typeof this.stageForm)['value']>()
+  @Output() updateHeight = new EventEmitter<number>()
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private host: ElementRef<HTMLElement>) {}
 
   ngOnInit(): void {
     if (this.node?.addInfo) {
@@ -54,13 +55,20 @@ export class WorkflowStageFormComponent implements OnInit {
     }
     this.stageForm.valueChanges.pipe(
       debounceTime(500)
-    ).subscribe(value => this.updateStage.emit(value))
+    ).subscribe(value => {
+      this.updateStage.emit(value)
+      this.emitUpdateHeight()
+    })
+  }
+
+  ngAfterViewInit(): void {
+    this.emitUpdateHeight();
   }
 
   addProcess(type: WorkflowProcessType) {
     const newControl = formWorkflowProcess(type)
     this.stageForm.controls.processes.push(
-      newControl as any
+      newControl
     )
     this.isCreatingSequence = false
   }
@@ -78,6 +86,11 @@ export class WorkflowStageFormComponent implements OnInit {
   save() {
     this.stageForm.markAsUntouched()
     this.stageForm.markAsPristine()
+  }
+
+  emitUpdateHeight() {
+    const height = this.host.nativeElement.getBoundingClientRect().height
+    this.updateHeight.emit(Math.round(height))
   }
 
   clear = clearStageForm
