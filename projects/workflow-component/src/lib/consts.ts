@@ -1,3 +1,4 @@
+import { ConnectorModel } from '@syncfusion/ej2-angular-diagrams'
 import {
   CustomHistory,
   CustomHistoryEntry,
@@ -16,6 +17,17 @@ export const WORKFLOW_DIAGRAM_NODE_DEFAULT: Pick<
   width: 230,
   shape: { type: 'HTML' },
   offsetY: 160,
+}
+export const WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT: ConnectorModel = {
+  cornerRadius: 10,
+  type: 'Orthogonal',
+  sourceDecorator: {
+    style: {
+      strokeWidth: 1,
+    },
+    shape: 'Circle'
+  },
+  sourcePadding: 10
 }
 
 // History Manager

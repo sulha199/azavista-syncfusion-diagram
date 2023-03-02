@@ -1,5 +1,5 @@
 import { ConnectorModel } from '@syncfusion/ej2-angular-diagrams'
-import { WORKFLOW_DIAGRAM_NODE_DEFAULT } from './consts'
+import { WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT, WORKFLOW_DIAGRAM_NODE_DEFAULT } from './consts'
 import { WorkflowDiagramNode } from './models'
 
 export const nodesDummy: WorkflowDiagramNode[] = [
@@ -52,16 +52,8 @@ export const nodesDummy: WorkflowDiagramNode[] = [
 export const nodesConnectorDummy: ConnectorModel[] = nodesDummy.slice(1).map((target, index) => {
   const source = nodesDummy[index]
   return {
+    ...WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT,
     sourceID: source.id,
     targetID: target.id,
-    cornerRadius: 10,
-    type: 'Orthogonal',
-    sourceDecorator: {
-      style: {
-        strokeWidth: 1,
-      },
-      shape: 'Circle'
-    },
-    sourcePadding: 10
   }
 })

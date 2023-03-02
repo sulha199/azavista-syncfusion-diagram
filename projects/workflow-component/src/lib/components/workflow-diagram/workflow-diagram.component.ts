@@ -1,10 +1,10 @@
-import { ChangeDetectorRef, Component, ViewChild } from '@angular/core'
+import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core'
 import { FormGroup } from '@angular/forms'
 import {
   ConnectorModel,
   DiagramTools, PageSettingsModel, SnapConstraints, SnapSettingsModel
 } from '@syncfusion/ej2-angular-diagrams'
-import { WORKFLOW_DIAGRAM_NODE_DEFAULT, WORKFLOW_DIAGRAM_NODE_MARGIN, WORKFLOW_HISTORY_MANAGER } from 'projects/workflow-component/src/lib/consts'
+import { WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT, WORKFLOW_DIAGRAM_NODE_DEFAULT, WORKFLOW_DIAGRAM_NODE_MARGIN, WORKFLOW_HISTORY_MANAGER } from 'projects/workflow-component/src/lib/consts'
 import { GroupType } from 'projects/workflow-component/src/lib/helpers'
 import { nodesConnectorDummy, nodesDummy } from '../../mocks'
 import { CustomDiagramComponent, WorkflowDiagramAddNodeOptions, WorkflowDiagramNode, WorkflowStage } from '../../models'
@@ -24,9 +24,10 @@ const pageSettings: PageSettingsModel = {
   styleUrls: ['./workflow-diagram.component.scss'],
 })
 export class WorkflowDiagramComponent {
+  @Input() nodes: WorkflowDiagramNode[] = nodesDummy
+  @Input() connectors: ConnectorModel[] = nodesConnectorDummy
+
   tool: DiagramTools =  DiagramTools.ContinuousDraw
-  nodes = nodesDummy
-  connectors = nodesConnectorDummy
   historyManager = WORKFLOW_HISTORY_MANAGER
   snapSettings = snapSettings
   pageSettings = pageSettings
@@ -61,10 +62,9 @@ export class WorkflowDiagramComponent {
     };
 
     const newConnector: ConnectorModel = {
+      ...WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT,
       sourceID: currentNode.id,
       targetID: newId,
-      cornerRadius: 10,
-      type: 'Orthogonal'
     }
 
     this.diagram?.startGroupAction()
