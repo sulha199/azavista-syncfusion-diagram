@@ -8,6 +8,7 @@ import { WorkflowProcessConfirmationPageComponent } from './components/workflow-
 import { WorkflowProcessFormComponent } from './components/workflow-process-form/workflow-process-form.component'
 import { WorkflowStageFormComponent } from './components/workflow-stage-form/workflow-stage-form.component'
 import { WorkflowComponentComponent } from './workflow-component.component'
+import { EventWorkflowService } from './workflow-component.service'
 
 
 
@@ -33,6 +34,9 @@ import { WorkflowComponentComponent } from './workflow-component.component'
     WorkflowComponentComponent,
     WorkflowDiagramComponent,
     DiagramModule
+  ],
+  providers: [
+    EventWorkflowService
   ]
 })
 export class WorkflowComponentModule { }
