@@ -1,4 +1,5 @@
 import { Component } from '@angular/core'
+import { mockWorkflows } from 'projects/workflow-component/src/lib/mocks'
 
 @Component({
   selector: 'azavista-workflow-root',
@@ -7,4 +8,5 @@ import { Component } from '@angular/core'
 })
 export class AppComponent {
   title = 'azavista-syncfusion-diagram';
+  workflows = mockWorkflows;
 }

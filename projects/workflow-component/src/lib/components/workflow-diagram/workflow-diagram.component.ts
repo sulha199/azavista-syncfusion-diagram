@@ -1,12 +1,12 @@
-import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core'
+import { Component, Input, OnInit, ViewChild } from '@angular/core'
 import { FormGroup } from '@angular/forms'
+import { IEmailCampaignType, IEventWorkflow, PageType } from '@azavista/servicelib'
 import {
   ConnectorModel,
   DiagramTools, PageSettingsModel, SnapConstraints, SnapSettingsModel
 } from '@syncfusion/ej2-angular-diagrams'
 import { WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT, WORKFLOW_DIAGRAM_NODE_DEFAULT, WORKFLOW_DIAGRAM_NODE_MARGIN, WORKFLOW_HISTORY_MANAGER } from 'projects/workflow-component/src/lib/consts'
-import { GroupType } from 'projects/workflow-component/src/lib/helpers'
-import { nodesConnectorDummy, nodesDummy } from '../../mocks'
+import { GroupType, workflowDataToDiagramNode } from 'projects/workflow-component/src/lib/helpers'
 import { CustomDiagramComponent, WorkflowDiagramAddNodeOptions, WorkflowDiagramNode, WorkflowStage } from '../../models'
 
 const snapSettings: SnapSettingsModel = {
@@ -17,15 +17,19 @@ const pageSettings: PageSettingsModel = {
     color: 'var(--bg-color-grey)',
   }
 }
-
 @Component({
   selector: 'azavista-workflow-diagram',
   templateUrl: './workflow-diagram.component.html',
   styleUrls: ['./workflow-diagram.component.scss'],
 })
-export class WorkflowDiagramComponent {
-  @Input() nodes: WorkflowDiagramNode[] = nodesDummy
-  @Input() connectors: ConnectorModel[] = nodesConnectorDummy
+export class WorkflowDiagramComponent implements OnInit {
+  @Input() eventId?: string;
+  @Input() workflows: IEventWorkflow[] = []
+  @Input() emailCampaignsGetter?: (eventId: string, type: PageType) => Promise<IEmailCampaignType[]>
+  @Input() pagesGetter?: (eventId: string, type: PageType) => Promise<IEmailCampaignType[]>;
+
+  nodes: WorkflowDiagramNode[] = []
+  connectors: ConnectorModel[] = []
 
   tool: DiagramTools =  DiagramTools.ContinuousDraw
   historyManager = WORKFLOW_HISTORY_MANAGER
@@ -35,7 +39,11 @@ export class WorkflowDiagramComponent {
   @ViewChild('diagram')
   public diagram?: CustomDiagramComponent<WorkflowDiagramNode>;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  ngOnInit(): void {
+    const { connectors, nodes } = workflowDataToDiagramNode(this.workflows);
+    this.nodes = nodes;
+    this.connectors = connectors;
+  }
 
   onAdd({ node, position }: WorkflowDiagramAddNodeOptions) {
     const currentNode = this.diagram?.getNodeObject(node.id)
@@ -95,7 +103,7 @@ export class WorkflowDiagramComponent {
   }
 
   created = () => {
-    this.nodes.forEach(node => this.diagram?.addNode(node))
+    // this.nodes.forEach(node => this.diagram?.addNode(node))
     this.connectors.forEach(connector => this.diagram?.addConnector(connector))
   }
 

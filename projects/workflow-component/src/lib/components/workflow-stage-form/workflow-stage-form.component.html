@@ -1,9 +1,12 @@
 <ng-container *ngIf="node && node.addInfo">
   <div class="workflow-stage">
-    <div class="workflow-stage__header"  *ngIf="stageForm.value.type && stageMap[stageForm.value.type] as stageProp">
-      <div class="workflow-stage__title">{{ stageProp.label }}</div>
+    <div class="workflow-stage__header"  *ngIf="stageForm.value.type && stageMap[stageForm.value.type] as stageProp; else useStageTitle">
+      <div class="workflow-stage__title">{{ stageProp.label || stageForm.value.title}}</div>
       <div class="workflow-stage__description">{{ stageProp.description }}</div>
     </div>
+    <ng-template #useStageTitle>
+      <div class="workflow-stage__title">{{ stageForm.value.title}}</div>
+    </ng-template>
     <input type="text" [formControl]="stageForm.controls.title" placeholder="Type stage name">
     <div class="workflow-stage__process__list" *ngFor="let processForm of stageForm.controls.processes.controls">
       <azavista-workflow-process-form *ngIf="processForm.value.type === 'form'" [processForm]="$any(processForm)"/>

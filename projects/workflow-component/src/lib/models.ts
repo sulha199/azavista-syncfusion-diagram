@@ -1,3 +1,4 @@
+import { EventWorkflowSettingsCombination } from '@azavista/servicelib'
 import { ConnectorModel, DiagramComponent, History, Node, NodeModel } from '@syncfusion/ej2-angular-diagrams'
 
 export const workflowProcessFormOptions = ['registration-form', 'cancellation-form', 'survey-form' ] as const
@@ -12,9 +13,8 @@ export type WorkflowStageType = 'invitation' | 'registration' | 'post-registrati
 
 export type WorkflowStage = {
   title: string
-  type: WorkflowStageType
   processes: WorkflowProcess[]
-}
+} & EventWorkflowSettingsCombination
 
 export type WorkflowProcessForm = {
   type: 'form'
@@ -68,3 +68,8 @@ export type CustomHistoryEntry<T extends NodeModel> = {
 }
 
 export type CustomHistory<T extends NodeModel> = History & { push?: (entry: CustomHistoryEntry<T>) => any }
+
+export type WorkflowCollection = {
+  connectors: ConnectorModel[]
+  nodes: WorkflowDiagramNode[]
+}

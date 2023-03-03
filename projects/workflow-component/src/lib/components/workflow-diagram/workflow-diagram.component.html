@@ -1,5 +1,5 @@
 <ejs-diagram #diagram id="diagram" width="100%" height="580px" [tool]="tool" (created)="created()"
-[historyManager]="historyManager" [snapSettings]="snapSettings" [pageSettings]="pageSettings" [nodeDefaults]="">
+[historyManager]="historyManager" [snapSettings]="snapSettings" [pageSettings]="pageSettings" [nodes]="nodes">
   <ng-template #nodeTemplate let-data>
     <azavista-workflow-stage-form
       [node]="data"
