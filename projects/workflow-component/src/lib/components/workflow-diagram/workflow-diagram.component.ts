@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core'
 import { FormGroup } from '@angular/forms'
-import { IEmailCampaignType, IEventWorkflow, PageType } from '@azavista/servicelib'
+import { EventWorkflowTemplateType, IEmailCampaignType, IEventWorkflow, PageType } from '@azavista/servicelib'
 import {
   ConnectorModel,
   DiagramTools, PageSettingsModel, SnapConstraints, SnapSettingsModel
@@ -65,7 +65,8 @@ export class WorkflowDiagramComponent implements OnInit {
       addInfo: {
         title: newId,
         processes: [],
-        type: 'cancellation'
+        type: EventWorkflowTemplateType.cancellation,
+        settings: {} as any
       },
     };
 

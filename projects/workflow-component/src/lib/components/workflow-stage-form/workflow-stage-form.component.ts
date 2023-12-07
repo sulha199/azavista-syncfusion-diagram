@@ -31,7 +31,7 @@ const setupStageForm = (form: FormGroup<GroupType<WorkflowStage>>) => {
   styleUrls: ['./workflow-stage-form.component.scss'],
 })
 export class WorkflowStageFormComponent implements OnInit, AfterViewInit {
-  stageForm = formWorkflowStage()
+  stageForm?: ReturnType< typeof formWorkflowStage>
   sequenceTypes = workflowProcessTypeOptions
   isCreatingSequence = false
   stageMap = WORKFLOW_STAGE_PROPS_MAP
@@ -46,6 +46,7 @@ export class WorkflowStageFormComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     if (this.node?.addInfo) {
+      this.stageForm = formWorkflowStage(this.node?.addInfo?.type)
       this.stageForm.patchValue(this.node?.addInfo, { emitEvent: false })
       this.node?.addInfo.processes.forEach(process => {
         const processForm = formWorkflowProcess(process.type)

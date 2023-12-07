@@ -1,10 +1,103 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { EventWorkflowTemplateType, IEventWorkflow } from '@azavista/servicelib'
 import { ConnectorModel } from '@syncfusion/ej2-angular-diagrams'
-import { WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT, WORKFLOW_DIAGRAM_NODE_DEFAULT } from '../consts'
+import {
+  WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT,
+  WORKFLOW_DIAGRAM_NODE_DEFAULT,
+} from '../consts'
 import { WorkflowCollection, WorkflowDiagramNode } from '../models'
 
 const gap = 350
-const padding = 100
+const padding = 300
+
+/******
+ *
+ *
+ *
+ *
+ */
+
+const workflowTypeOrder = [
+  EventWorkflowTemplateType.invitation,
+  EventWorkflowTemplateType.registrationWaitingList,
+  EventWorkflowTemplateType.registration,
+  EventWorkflowTemplateType.publicRegistration,
+  EventWorkflowTemplateType.multiRegistration,
+  EventWorkflowTemplateType.profile,
+  EventWorkflowTemplateType.paymentWaitingList,
+  EventWorkflowTemplateType.payment,
+  EventWorkflowTemplateType.preArrival,
+  EventWorkflowTemplateType.arrival,
+  EventWorkflowTemplateType.cancellation,
+  EventWorkflowTemplateType.eventCancellation,
+  EventWorkflowTemplateType.stageAction,
+]
+
+type MapByWorkflowId<ContentType> = {
+  [workflowId: string]: ContentType
+}
+type WorkflowId = string
+type WorkflowTree = { [workflowId: string]: WorkflowTree[] | null }
+/**
+ * @ [0] -> contains members of top root
+ * @ [1] -> contains children of top root
+ * @ [2] -> contains grand-children of top root
+ */
+type WorkflowItemByLevel = Array<Array<WorkflowId>>
+
+const workflowGrid = (workflows: IEventWorkflow[]) => {
+  const { rootWorkflows, workflowByType, targetMapByWorkflowId, sourceMapByWorkflowId, orphansWorkflows } = getWorkflowsMaps(workflows)
+  const gridX: {[x: number]: WorkflowId[]} = {}
+  const gridY: {[y: number]: WorkflowId[]} = {}
+  const workflowNodesMap: {[workflowId: WorkflowId]: WorkflowDiagramNode} = {};
+
+  type GetSequencesOptions = {
+    x?: number,
+    y?: number
+  }
+  const getSequences = (workflow: IEventWorkflow, options?: GetSequencesOptions) => {
+    // const current
+  }
+}
+
+const generateWorkflowTree = (workflows: IEventWorkflow[]) => {
+  // setup sources & target map
+  const { rootWorkflows, workflowByType, targetMapByWorkflowId, sourceMapByWorkflowId, orphansWorkflows } = getWorkflowsMaps(workflows)
+  // If no `rootWorkflows` found, then decide the root workflows based on `workflowTypeOrder`
+  if (rootWorkflows.length === 0) {
+    const rootWorkflowType = workflowTypeOrder.find((type) => workflowByType[type])
+    rootWorkflows.push(...workflowByType[rootWorkflowType])
+  }
+
+  const getWorkflowLevel = (
+    workflowIds: WorkflowId[],
+    prevLevels?: WorkflowItemByLevel
+  ) => {
+    const levels: WorkflowItemByLevel = [...prevLevels, [...workflowIds]]
+    const nextLevelWorkflowIds = workflowIds
+      .reduce(
+        (sum: string[], workflowId) => [...sum, ...targetMapByWorkflowId[workflowId]],
+        []
+      )
+      .filter((nextLevelWorkflowId) =>
+        prevLevels?.some((level) => !level.includes(nextLevelWorkflowId))
+      )
+    const result: WorkflowItemByLevel = nextLevelWorkflowIds.length > 0
+      ? (getWorkflowLevel(nextLevelWorkflowIds, levels) as WorkflowItemByLevel)
+      : levels
+    return result
+  }
+
+  const levels = rootWorkflows.map(rootWorkflow => getWorkflowLevel([rootWorkflow.id]));
+  return {
+    targetMapByWorkflowId,
+    sourceMapByWorkflowId,
+    levels,
+    workflowByType,
+    rootWorkflows,
+    orphansWorkflows
+  }
+}
 
 export const workflowDataToDiagramNode = (workflowsItems: IEventWorkflow[]) => {
   const topRoots = getTopLevelRootOfWorkflows(workflowsItems)
@@ -18,7 +111,9 @@ export const workflowDataToDiagramNode = (workflowsItems: IEventWorkflow[]) => {
 
   const secondLevelRoots = getSecondLevelRootOfWorkflows(
     workflowsItems,
-    topRoots.map(({ id }) => id).filter((id) => id !== undefined) as string[]
+    collectionFromTopRoots.nodes
+      .map(({ id }) => id)
+      .filter((id) => id !== undefined) as string[]
   )
   const collectionFromSecondLevelRoots = mergeWorkflowCollection(
     secondLevelRoots.map((item, index) =>
@@ -103,6 +198,36 @@ export const getNodeFromWorkflowItem = (
   } as WorkflowDiagramNode
 }
 
+const getWorkflowsMaps = (workflows: IEventWorkflow[]) => {
+  const targetMapByWorkflowId: MapByWorkflowId<string[]> = {}
+  const sourceMapByWorkflowId: MapByWorkflowId<string[]> = {}
+  const workflowByType: {
+    [type in EventWorkflowTemplateType]?: IEventWorkflow[]
+  } = {}
+  workflows.forEach((workflow) => {
+    const targetWorkflows = getNextWorkflowIdsBySettingsProp(workflow)
+    targetMapByWorkflowId[workflow.id] = targetWorkflows
+    targetWorkflows.forEach(
+      (target) => (sourceMapByWorkflowId[target] = [...sourceMapByWorkflowId[target], workflow.id])
+    )
+    workflowByType[workflow.type] = [...workflowByType[workflow.type], workflow]
+  })
+
+  const orphansWorkflows: IEventWorkflow[] = []
+  const rootWorkflows: IEventWorkflow[] = []
+  workflows.forEach((workflow) => {
+    const { id } = workflow
+    if (!sourceMapByWorkflowId[id]) {
+      if (targetMapByWorkflowId[id]) {
+        rootWorkflows.push(workflow)
+      } else {
+        orphansWorkflows.push(workflow)
+      }
+    }
+  })
+  return { rootWorkflows, workflowByType, targetMapByWorkflowId, sourceMapByWorkflowId, orphansWorkflows }
+}
+
 function appendNodeIdPrefix(nodeId: string, prefix = 'wf_node_'): string {
   return nodeId ? `${prefix}${nodeId}` : nodeId
 }
@@ -113,10 +238,10 @@ function getTopLevelRootOfWorkflows(workflowsItems: IEventWorkflow[]) {
 
 function getSecondLevelRootOfWorkflows(
   workflowsItems: IEventWorkflow[],
-  topLevelRootIds: string[]
+  skippedWorkflowIds: string[]
 ) {
   return workflowsItems.filter(({ id }) => {
-    const isFirstLevelRoot = topLevelRootIds.includes(id ?? '')
+    const isFirstLevelRoot = skippedWorkflowIds.includes(id ?? '')
     if (isFirstLevelRoot) {
       return false
     }
@@ -137,19 +262,13 @@ function getNextWorkflowSequences(
   startingNode: IEventWorkflow,
   workflowsItems: IEventWorkflow[]
 ): IEventWorkflow[] {
-  const hasNoNextWorkflow =
-    startingNode.type === EventWorkflowTemplateType.cancellation ||
-    !startingNode.settings.next_workflow_ids?.next_workflow
-  if (hasNoNextWorkflow) {
-    return [startingNode]
-  }
-  const nextWorflow = workflowsItems.find(
-    ({ id }) => id === startingNode.settings.next_workflow_ids?.next_workflow
-  )
-  if (nextWorflow == undefined) {
-    return [startingNode]
-  }
-  return [startingNode, ...getNextWorkflowSequences(nextWorflow, workflowsItems)]
+  const nextWorflows = getNextWorkflowIdsBySettingsProp(startingNode)
+    .map((workflowId) => workflowsItems.find(({ id }) => id === workflowId))
+    .filter((item) => !!item) as IEventWorkflow[]
+  const combinedNextWorkflows = nextWorflows
+    .map((nextWorkflow) => getNextWorkflowSequences(nextWorkflow, workflowsItems))
+    .reduce((merged, current) => merged.concat(current), [])
+  return [startingNode, ...combinedNextWorkflows]
 }
 
 function getMergedConnectorsFromNode(
@@ -162,43 +281,52 @@ function getMergedConnectorsFromNode(
   }
   const connectorsFromCurrentNode = [
     ...getConnectorsFromNode(node, options),
-    ...getConnectorsFromNode(
-      node,
-      {
-        ...options,
-        style: {
-          ...WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT.style,
-          ...options?.style,
-          strokeDashArray: '2 4',
-          opacity: 0.2,
-        },
-        sourceDecorator: {
-          ...WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT.sourceDecorator,
-          style: {
-            opacity: 0.2
-          }
-        },
-        targetDecorator: {
-          ...WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT.targetDecorator,
-          style: {
-            opacity: 0.2
-          }
-        },
-        type: 'Bezier',
-      },
-      getNextWorkflowByOutputProp
-    ),
+    // ...getConnectorsFromNode(
+    //   node,
+    //   {
+    //     ...options,
+    //     style: {
+    //       ...WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT.style,
+    //       ...options?.style,
+    //       strokeDashArray: '2 4',
+    //       opacity: 0.2,
+    //     },
+    //     sourceDecorator: {
+    //       ...WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT.sourceDecorator,
+    //       style: {
+    //         opacity: 0.2,
+    //       },
+    //     },
+    //     targetDecorator: {
+    //       ...WORKFLOW_DIAGRAM_CONNECTOR_DEFAULT.targetDecorator,
+    //       style: {
+    //         opacity: 0.2,
+    //       },
+    //     },
+    //     type: 'Bezier',
+    //   },
+    //   getNextWorkflowByOutputProp
+    // ),
   ]
-  const nextWorkflowItemsBySetting = getNextWorkflowBySettingsProp(node).map(nodeId => workflowsItems.find(({id}) => nodeId === id)).filter(item => item);
+  const nextWorkflowIdsBySetting = getNextWorkflowIdsBySettingsProp(node).filter(
+    (id) => id !== undefined
+  )
+  const nextWorkflowItemsBySetting = nextWorkflowIdsBySetting
+    .map((nodeId) => workflowsItems.find(({ id }) => nodeId === id))
+    .filter((item) => item)
   return connectorsFromCurrentNode.concat(
-    ...nextWorkflowItemsBySetting.map(nextWorkflow => getMergedConnectorsFromNode(nextWorkflow, workflowsItems)),
+    ...nextWorkflowItemsBySetting.map((nextWorkflow) =>
+      getMergedConnectorsFromNode(nextWorkflow, workflowsItems)
+    )
   )
 }
 
 const getConnectorsFromNode = (
   node: IEventWorkflow,
   options?: Partial<ConnectorModel>,
-  nextWorkflowGetter: (node: IEventWorkflow) => string[] = getNextWorkflowBySettingsProp
+  nextWorkflowGetter: (
+    node: IEventWorkflow
+  ) => string[] = getNextWorkflowIdsBySettingsProp
 ) => {
   return nextWorkflowGetter(node).map((nodeId) => {
     return {
@@ -210,14 +338,83 @@ const getConnectorsFromNode = (
   })
 }
 
-const getNextWorkflowBySettingsProp = (node: IEventWorkflow) => {
-  if (node.type === EventWorkflowTemplateType.cancellation) {
-    return []
-  }
-  const nextWorflow = node.settings.next_workflow_ids?.next_workflow
-  return nextWorflow ? [nextWorflow] : []
+type EventWorkflowWithType<WorkflowType extends EventWorkflowTemplateType> = {
+  type: WorkflowType
+} & IEventWorkflow
+
+const getNextWorkflowIdsBySettingsProp = <WorkflowType extends EventWorkflowTemplateType>(
+  workflow: EventWorkflowWithType<WorkflowType>
+) => {
+  const getterMap = nextWorkflowsFieldsGetters[workflow.type]
+  return Object.entries(getterMap)
+    .map(([_, getter]) => {
+      const a = getterMap[_]
+      return getter(workflow) as string
+    })
+    .filter((workflowId) => workflowId != undefined)
 }
 
 const getNextWorkflowByOutputProp = (node: IEventWorkflow) => {
   return node.output_pins
+}
+
+type NextWorkflowFieldMap = {
+  [WorkflowType in EventWorkflowTemplateType]: (keyof EventWorkflowWithType<WorkflowType>['settings'])[]
+}
+
+const nextWorkflowBasic = {
+  'next-workflow': (workflow: IEventWorkflow) =>
+    workflow.type !== EventWorkflowTemplateType.cancellation
+      ? workflow.settings.next_workflow_ids?.next_workflow
+      : undefined,
+}
+
+const nextWorkflowsFieldsGetters: {
+  [WorkflowType in EventWorkflowTemplateType]: {
+    [name: string]: (node: EventWorkflowWithType<WorkflowType>) => string | undefined
+  }
+} = {
+  [EventWorkflowTemplateType.arrival]: nextWorkflowBasic,
+  [EventWorkflowTemplateType.cancellation]: {
+    'register-workflow': ({ settings }) => settings.register_workflow_id,
+  },
+  [EventWorkflowTemplateType.eventCancellation]: nextWorkflowBasic,
+  [EventWorkflowTemplateType.invitation]: nextWorkflowBasic,
+  [EventWorkflowTemplateType.multiRegistration]: {
+    ...nextWorkflowBasic,
+    'decline-workflow': ({ settings }) => settings.decline_workflow_id,
+  },
+  [EventWorkflowTemplateType.payment]: {
+    ...nextWorkflowBasic,
+    'decline-workflow': ({ settings }) => settings.decline_workflow_id,
+    'cancellation-workflow': ({ settings }) => settings.cancellation_workflow_id,
+  },
+  [EventWorkflowTemplateType.paymentWaitingList]: {
+    ...nextWorkflowBasic,
+    'decline-workflow': ({ settings }) => settings.decline_workflow_id,
+    'cancellation-workflow': ({ settings }) => settings.cancellation_workflow_id,
+  },
+  [EventWorkflowTemplateType.preArrival]: {
+    ...nextWorkflowBasic,
+    'cancellation-workflow': ({ settings }) => settings.cancellation_workflow_id,
+  },
+  [EventWorkflowTemplateType.profile]: nextWorkflowBasic,
+
+  [EventWorkflowTemplateType.publicRegistration]: {
+    ...nextWorkflowBasic,
+    'decline-workflow': ({ settings }) => settings.decline_workflow_id,
+    'cancellation-workflow': ({ settings }) => settings.cancellation_workflow_id,
+  },
+
+  [EventWorkflowTemplateType.registration]: {
+    ...nextWorkflowBasic,
+    'decline-workflow': ({ settings }) => settings.decline_workflow_id,
+    'cancellation-workflow': ({ settings }) => settings.cancellation_workflow_id,
+  },
+  [EventWorkflowTemplateType.registrationWaitingList]: {
+    ...nextWorkflowBasic,
+    'decline-workflow': ({ settings }) => settings.decline_workflow_id,
+    'cancellation-workflow': ({ settings }) => settings.cancellation_workflow_id,
+  },
+  [EventWorkflowTemplateType.stageAction]: nextWorkflowBasic,
 }
